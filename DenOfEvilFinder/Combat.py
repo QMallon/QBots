@@ -26,10 +26,11 @@ def checkincombat():
     while enemyFound:
         count = 0
         for image in enemylist:
-            found = pyautogui.locateCenterOnScreen(image, confidence=0.6)
+            found = pyautogui.locateCenterOnScreen('Images\\Enemies\\'+image, confidence=0.6)
             if found is not None:
-                print('found an enemy')
+                print('found an enemy' + image.title())
                 count += 1
 
-        if count > 0:
+        if count == 0:
             print('No Enemies Found')
+            enemyFound = False;
