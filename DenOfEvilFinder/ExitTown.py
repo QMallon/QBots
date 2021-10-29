@@ -7,7 +7,7 @@ import win32api, win32con
 
 
 def exittown():
-    while pyautogui.locateCenterOnScreen('Images\\Locations\\bloodmoorMap.png',greyscale = True, confidence=.6) is None:
+    while pyautogui.locateCenterOnScreen('Images\\Locations\\bloodmoorMap.png',grayscale = True, confidence=.6) is None:
         print('Currently in RogueEncampment')
         directory = os.listdir('Images\\Locations\\RogueEncampment')
         exits = []
@@ -65,7 +65,7 @@ def exittown():
                         image = 'exitSouthBridgeEbd.png'
 
                 time.sleep(2)
-            if pyautogui.locateCenterOnScreen('Images\\Locations\\bloodmoorMap.png', greyscale=True, confidence=.5) is not None:
+            if pyautogui.locateCenterOnScreen('Images\\Locations\\bloodmoorMap.png', grayscale=True, confidence=.5) is not None:
                 located = True
 
     print('FoundBloodMoor')

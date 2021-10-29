@@ -1,6 +1,7 @@
 import CharCreate
 import Combat
 import ExitTown
+import followRoad
 from pyautogui import *
 import pyautogui
 import time
@@ -18,6 +19,7 @@ time.sleep(1.0)
 keyboard.press('tab')
 time.sleep(1.0)
 ExitTown.exittown()
+followRoad.followRoad()
 
 
 
