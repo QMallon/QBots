@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
-#from HsvFilter import HsvFilter
-#from EdgeFilter import EdgeFilter
+from hsvfilter import HsvFilter
 
 
 class Vision:
@@ -16,15 +15,13 @@ class Vision:
 
     # constructor
     def __init__(self, needle_img_path, method=cv.TM_CCOEFF_NORMED):
+        # load the image we're trying to match
+        # https://docs.opencv.org/4.2.0/d4/da8/group__imgcodecs.html
+        self.needle_img = cv.imread(needle_img_path, cv.IMREAD_UNCHANGED)
 
-        if needle_img_path:
-            # load the image we're trying to match
-            # https://docs.opencv.org/4.2.0/d4/da8/group__imgcodecs.html
-            self.needle_img = cv.imread(needle_img_path, cv.IMREAD_UNCHANGED)
-
-            # Save the dimensions of the needle image
-            self.needle_w = self.needle_img.shape[1]
-            self.needle_h = self.needle_img.shape[0]
+        # Save the dimensions of the needle image
+        self.needle_w = self.needle_img.shape[1]
+        self.needle_h = self.needle_img.shape[0]
 
         # There are 6 methods to choose from:
         # TM_CCOEFF, TM_CCOEFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_SQDIFF, TM_SQDIFF_NORMED
@@ -37,7 +34,7 @@ class Vision:
         # Get the all the positions from the match result that exceed our threshold
         locations = np.where(result >= threshold)
         locations = list(zip(*locations[::-1]))
-        # print(locations)
+        #print(locations)
 
         # if we found no results, return now. this reshape of the empty array allows us to
         # concatenate together results without causing an error
@@ -59,7 +56,7 @@ class Vision:
         # in the result. I've set eps to 0.5, which is:
         # "Relative difference between sides of the rectangles to merge them into a group."
         rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
-        # print(rectangles)
+        #print(rectangles)
 
         # for performance reasons, return a limited number of results.
         # these aren't necessarily the best results.
@@ -77,8 +74,8 @@ class Vision:
         # Loop over all the rectangles
         for (x, y, w, h) in rectangles:
             # Determine the center position
-            center_x = x + int(w / 2)
-            center_y = y + int(h / 2)
+            center_x = x + int(w/2)
+            center_y = y + int(h/2)
             # Save the points
             points.append((center_x, center_y))
 
@@ -142,17 +139,6 @@ class Vision:
         cv.createTrackbar('VAdd', self.TRACKBAR_WINDOW, 0, 255, nothing)
         cv.createTrackbar('VSub', self.TRACKBAR_WINDOW, 0, 255, nothing)
 
-        # trackbars for edge creation
-        cv.createTrackbar('KernelSize', self.TRACKBAR_WINDOW, 1, 30, nothing)
-        cv.createTrackbar('ErodeIter', self.TRACKBAR_WINDOW, 1, 5, nothing)
-        cv.createTrackbar('DilateIter', self.TRACKBAR_WINDOW, 1, 5, nothing)
-        cv.createTrackbar('Canny1', self.TRACKBAR_WINDOW, 0, 200, nothing)
-        cv.createTrackbar('Canny2', self.TRACKBAR_WINDOW, 0, 500, nothing)
-        # Set default value for Canny trackbars
-        cv.setTrackbarPos('KernelSize', self.TRACKBAR_WINDOW, 5)
-        cv.setTrackbarPos('Canny1', self.TRACKBAR_WINDOW, 100)
-        cv.setTrackbarPos('Canny2', self.TRACKBAR_WINDOW, 200)
-
     # returns an HSV filter object based on the control GUI values
     def get_hsv_filter_from_controls(self):
         # Get current positions of all trackbars
@@ -168,17 +154,6 @@ class Vision:
         hsv_filter.vAdd = cv.getTrackbarPos('VAdd', self.TRACKBAR_WINDOW)
         hsv_filter.vSub = cv.getTrackbarPos('VSub', self.TRACKBAR_WINDOW)
         return hsv_filter
-
-    # returns a Canny edge filter object based on the control GUI values
-    def get_edge_filter_from_controls(self):
-        # Get current positions of all trackbars
-        edge_filter = EdgeFilter()
-        edge_filter.kernelSize = cv.getTrackbarPos('KernelSize', self.TRACKBAR_WINDOW)
-        edge_filter.erodeIter = cv.getTrackbarPos('ErodeIter', self.TRACKBAR_WINDOW)
-        edge_filter.dilateIter = cv.getTrackbarPos('DilateIter', self.TRACKBAR_WINDOW)
-        edge_filter.canny1 = cv.getTrackbarPos('Canny1', self.TRACKBAR_WINDOW)
-        edge_filter.canny2 = cv.getTrackbarPos('Canny2', self.TRACKBAR_WINDOW)
-        return edge_filter
 
     # given an image and an HSV filter, apply the filter and return the resulting image.
     # if a filter is not supplied, the control GUI trackbars will be used
@@ -210,25 +185,6 @@ class Vision:
 
         return img
 
-    # given an image and a Canny edge filter, apply the filter and return the resulting image.
-    # if a filter is not supplied, the control GUI trackbars will be used
-    def apply_edge_filter(self, original_image, edge_filter=None):
-        # if we haven't been given a defined filter, use the filter values from the GUI
-        if not edge_filter:
-            edge_filter = self.get_edge_filter_from_controls()
-
-        kernel = np.ones((edge_filter.kernelSize, edge_filter.kernelSize), np.uint8)
-        eroded_image = cv.erode(original_image, kernel, iterations=edge_filter.erodeIter)
-        dilated_image = cv.dilate(eroded_image, kernel, iterations=edge_filter.dilateIter)
-
-        # canny edge detection
-        result = cv.Canny(dilated_image, edge_filter.canny1, edge_filter.canny2)
-
-        # convert single channel image back to BGR
-        img = cv.cvtColor(result, cv.COLOR_GRAY2BGR)
-
-        return img
-
     # apply adjustments to an HSV channel
     # https://stackoverflow.com/questions/49697363/shifting-hsv-pixel-values-in-python-using-numpy
     def shift_channel(self, c, amount):
@@ -242,49 +198,3 @@ class Vision:
             c[c <= lim] = 0
             c[c > lim] -= amount
         return c
-
-    def match_keypoints(self, original_image, patch_size=32):
-        min_match_count = 5
-
-        orb = cv.ORB_create(edgeThreshold=0, patchSize=patch_size)
-        keypoints_needle, descriptors_needle = orb.detectAndCompute(self.needle_img, None)
-        orb2 = cv.ORB_create(edgeThreshold=0, patchSize=patch_size, nfeatures=2000)
-        keypoints_haystack, descriptors_haystack = orb2.detectAndCompute(original_image, None)
-
-        FLANN_INDEX_LSH = 6
-        index_params = dict(algorithm=FLANN_INDEX_LSH,
-                            table_number=6,
-                            key_size=12,
-                            multi_probe_level=1)
-
-        search_params = dict(checks=50)
-
-        try:
-            flann = cv.FlannBasedMatcher(index_params, search_params)
-            matches = flann.knnMatch(descriptors_needle, descriptors_haystack, k=2)
-        except cv.error:
-            return None, None, [], [], None
-
-        # store all the good matches as per Lowe's ratio test.
-        good = []
-        points = []
-
-        for pair in matches:
-            if len(pair) == 2:
-                if pair[0].distance < 0.7 * pair[1].distance:
-                    good.append(pair[0])
-
-        if len(good) > min_match_count:
-            print('match %03d, kp %03d' % (len(good), len(keypoints_needle)))
-            for match in good:
-                points.append(keypoints_haystack[match.trainIdx].pt)
-            # print(points)
-
-        return keypoints_needle, keypoints_haystack, good, points
-
-    def centeroid(self, point_list):
-        point_list = np.asarray(point_list, dtype=np.int32)
-        length = point_list.shape[0]
-        sum_x = np.sum(point_list[:, 0])
-        sum_y = np.sum(point_list[:, 1])
-        return [np.floor_divide(sum_x, length), np.floor_divide(sum_y, length)]
