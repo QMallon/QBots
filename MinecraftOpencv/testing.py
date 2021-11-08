@@ -14,10 +14,11 @@ from Vision import Vision
 from bot import Bot
 from bot import BotState
 def mineStaight():
+    time.sleep(.5)
     pydirectinput.leftClick()
     pydirectinput.moveRel(None, -400)
     time.sleep(.5)
-    time.sleep(.5)
+
     pydirectinput.moveRel(None, 400)
     pydirectinput.leftClick()
     pydirectinput.press('w', 2)
@@ -28,15 +29,26 @@ def turn180():
     pydirectinput.moveRel(300, None)
     pydirectinput.moveRel(300, None)
 def checkY(img):
-    return(textExtract.)
+    return(False)
 
+def mineDiag():
+    pydirectinput.leftClick()
+    pydirectinput.moveRel(None, -400)
+    time.sleep(.5)
+    pydirectinput.moveRel(None, -400)
+    pydirectinput.leftClick()
+    time.sleep(.5)
+    pydirectinput.moveRel(None, 800)
+    pydirectinput.leftClick()
+    pydirectinput.press('w', 2)
+    time.sleep(2.0)
 
 wincap = WindowCapture('Minecraft 1.17.1 - Singleplayer')
 torchcount = 0;
 wcount = 0
 while True:
     time.sleep(1.0)
-    if checkY():
+    mineStaight()
 
 
     torchcount +=1
