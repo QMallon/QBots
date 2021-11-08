@@ -13,5 +13,17 @@ for line in textRay:
     print('Line ' + str(x) + ': ' + line)
     x += 1
 
+sub = 'Block'
+sub2 = 'Targeted Block:'
+for line in textRay:
+    if sub in line:
+        ray2 = line.split()
+        print('x y z: ' +ray2[1] + '/' + ray2[2]+ '/' + ray2[3])
+        #print(line)
+    if sub2 in line:
+        ray2 = line.split()
+        print('x y z: ' + ray2[8] + '/' + ray2[9] + '/' + ray2[10])
+        #print(line)
+
 
 #print(text)

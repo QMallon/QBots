@@ -16,12 +16,13 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 wincap = WindowCapture('Minecraft 1.17.1 - Singleplayer')
 #wincap.list_window_names()
 # initialize the Vision class
-vision_limestone = Vision('1636133666.3996527.jpg')
+vision_limestone = Vision('stone.png')
 # initialize the trackbar window
 vision_limestone.init_control_gui()
 
 # limestone HSV filter
-hsv_filter = HsvFilter(0, 0, 210, 179, 255, 255, 0, 255, 0, 0)
+#hsv_filter = HsvFilter(0, 0, 210, 179, 255, 255, 0, 255, 0, 0)
+hsv_filter = HsvFilter(0, 0, 0, 13, 255, 255, 0, 33, 9, 0)
 
 loop_time = time()
 while(True):
@@ -34,16 +35,16 @@ while(True):
     processed_image = vision_limestone.apply_hsv_filter(screenshot, hsv_filter)
 
     # do object detection
-    #rectangles = vision_limestone.find(processed_image, 0.46)
+    rectangles = vision_limestone.find(processed_image, 0.43)
 
     # draw the detection results onto the original image
-    #output_image = vision_limestone.draw_rectangles(screenshot, rectangles)
+    output_image = vision_limestone.draw_rectangles(screenshot, rectangles)
 
 
 
     # display the processed image
     cv.imshow('Processed', processed_image)
-    #cv.imshow('Matches', screenshot)
+    #cv.imshow('Matches', output_image)
 
     # debug the loop rate
     print('FPS {}'.format(1 / (time() - loop_time)))
@@ -57,6 +58,6 @@ while(True):
     elif cv.waitKey(1) == ord('f'):
         cv.imwrite('positive/{}.jpg'.format(loop_time), processed_image)
     elif cv.waitKey(1) == ord('d'):
-        cv.imwrite('negative/{}.jpg'.format(loop_time), screenshot)
+        cv.imwrite('negative/{}.jpg'.format(loop_time), processed_image)
 
 print('Done.')
