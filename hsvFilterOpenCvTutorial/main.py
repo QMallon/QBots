@@ -3,6 +3,7 @@ import numpy as np
 import os
 from time import time
 from windowcapture import WindowCapture
+
 from vision import Vision
 from hsvfilter import HsvFilter
 
@@ -12,14 +13,15 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 # initialize the WindowCapture class
-wincap = WindowCapture('Diablo II')
+wincap = WindowCapture('Minecraft 1.17.1 - Singleplayer')
+#wincap.list_window_names()
 # initialize the Vision class
 vision_limestone = Vision('1636133666.3996527.jpg')
 # initialize the trackbar window
 vision_limestone.init_control_gui()
 
 # limestone HSV filter
-#hsv_filter = HsvFilter(0, 180, 129, 15, 229, 243, 143, 0, 67, 0)
+hsv_filter = HsvFilter(0, 0, 210, 179, 255, 255, 0, 255, 0, 0)
 
 loop_time = time()
 while(True):
@@ -29,7 +31,7 @@ while(True):
     #screenshot =  '1636133666.3996527.jpg'
 
     # pre-process the image
-    #processed_image = vision_limestone.apply_hsv_filter(screenshot, None)
+    processed_image = vision_limestone.apply_hsv_filter(screenshot, hsv_filter)
 
     # do object detection
     #rectangles = vision_limestone.find(processed_image, 0.46)
@@ -40,8 +42,8 @@ while(True):
 
 
     # display the processed image
-    #cv.imshow('Processed', processed_image)
-    cv.imshow('Matches', screenshot)
+    cv.imshow('Processed', processed_image)
+    #cv.imshow('Matches', screenshot)
 
     # debug the loop rate
     print('FPS {}'.format(1 / (time() - loop_time)))
@@ -53,7 +55,7 @@ while(True):
         cv.destroyAllWindows()
         break
     elif cv.waitKey(1) == ord('f'):
-        cv.imwrite('positive/{}.jpg'.format(loop_time), screenshot)
+        cv.imwrite('positive/{}.jpg'.format(loop_time), processed_image)
     elif cv.waitKey(1) == ord('d'):
         cv.imwrite('negative/{}.jpg'.format(loop_time), screenshot)
 
