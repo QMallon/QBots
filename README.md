@@ -14,7 +14,15 @@ Including
   
   
  # Den of Evil Finder
-   Mostly uses piautogui but will be using opencv
+   Mostly uses piautogui
+ # Denv2
+   Same goal but using opencv, Haar cascade classifiers 
+   
+  # MinecraftOpenCv
+  Wanted to mmake a simpler idea work before doing more for my diablo ideas
    
  # OpenCvTutorials
-   code from following tutorials from LearnCode by gaming  is slightly modified for me 
+   code from following tutorials from Learn Code by gaming some of it is modified
+   
+  # hsvFilterOpenCvTutorials
+  basically just a few steps back on the tutorials used to gather screenshots for Haar and creating hsvFilters 
